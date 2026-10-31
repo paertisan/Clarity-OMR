@@ -13,6 +13,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 if __package__ in {None, ""}:
     sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from src.device import default_device_name
 from src.models.yolo_stage_a import YoloStageA, YoloStageAConfig
 from src.pipeline.assemble_score import (
     StaffLocation,
@@ -612,7 +613,7 @@ def _decode_stage_b_tokens(
         encoder_kv_cache = _prepare_decoder_memory_cache(decode_model, memory)
 
     device = memory.device
-    if device.type == "cuda":
+    if device.type in ("cuda", "mps"):
         return _decode_stage_b_tokens_batched(
             decode_model=decode_model,
             memory=memory,
@@ -654,7 +655,7 @@ def run_stage_b(args: argparse.Namespace) -> Dict[str, object]:
         raise ValueError("Stage-B checkpoint is required for inference.")
 
     device_name = str(args.device).strip() if args.device else ""
-    device = torch.device(device_name if device_name else ("cuda" if torch.cuda.is_available() else "cpu"))
+    device = torch.device(device_name if device_name else default_device_name())
     vocab = build_default_vocabulary()
     checkpoint_payload = _load_stage_b_checkpoint_payload(args.checkpoint, device)
     fallback_factory_cfg = ModelFactoryConfig(stage_b_vocab_size=vocab.size)
@@ -887,7 +888,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     stage_b_parser.add_argument("--image-height", type=int, default=250, help="Input image height for Stage-B.")
     stage_b_parser.add_argument("--image-max-width", type=int, default=2500, help="Input image max width for Stage-B (max 3000).")
-    stage_b_parser.add_argument("--device", type=str, default=None, help="Inference device (e.g. cuda, cpu).")
+    stage_b_parser.add_argument("--device", type=str, default=None, help="Inference device (e.g. cuda, mps, cpu).")
     assemble_parser = subparsers.add_parser("assemble", help="Assemble staff predictions into systems and parts.")
     assemble_parser.add_argument("--staff-predictions", type=Path, required=True, help="Staff predictions JSONL.")
     assemble_parser.add_argument("--output-assembly", type=Path, required=True, help="Output assembly JSON.")
@@ -928,7 +929,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run_parser.add_argument("--image-height", type=int, default=250, help="Stage-B input height.")
     run_parser.add_argument("--image-max-width", type=int, default=2500, help="Stage-B input max width (max 3000).")
-    run_parser.add_argument("--stage-b-device", type=str, default=None, help="Stage-B inference device.")
+    run_parser.add_argument("--stage-b-device", type=str, default=None, help="Stage-B inference device (cuda, mps, or cpu).")
     return parser
 
 

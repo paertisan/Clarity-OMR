@@ -217,7 +217,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--image-height", type=int, default=250, help="Stage-B input image height.")
     parser.add_argument("--image-max-width", type=int, default=2500, help="Stage-B input image max width (max 3000).")
-    parser.add_argument("--stage-b-device", type=str, default=None, help="Stage-B device (e.g. cuda, cpu).")
+    parser.add_argument("--stage-b-device", type=str, default=None, help="Stage-B device (e.g. cuda, mps, cpu).")
     parser.add_argument("--progress-every-seconds", type=float, default=10.0, help="Stage-B progress log interval.")
     parser.add_argument("--quiet", action="store_true", help="Disable Stage-B progress logs.")
     parser.add_argument(
@@ -324,6 +324,7 @@ def main() -> None:
                 enforce_full_width_crops=bool(args.enforce_full_width_crops),
                 full_width_left_page_edge=bool(args.full_width_left_page_edge),
                 full_width_right_page_edge=bool(args.full_width_right_page_edge),
+                device=args.stage_b_device,
             )
         )
         for page_index, page_image in enumerate(page_images):

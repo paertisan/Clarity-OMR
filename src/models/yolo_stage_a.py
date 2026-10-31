@@ -132,6 +132,7 @@ class YoloStageAConfig:
     min_vertical_padding_px: float = 12.0
     min_right_padding_px: float = 48.0
     seed: int = 1337
+    device: Optional[str] = None  # e.g. "cuda", "mps", "cpu"; None lets ultralytics choose
 
 
 def _deterministic_split(sample_id: str, seed: int, train: float, val: float) -> str:
@@ -169,6 +170,7 @@ class YoloStageA:
             conf=self.config.confidence_threshold,
             iou=self.config.iou_threshold,
             verbose=False,
+            **({"device": self.config.device} if self.config.device else {}),
         )
         if not results:
             return []

@@ -23,11 +23,9 @@ from src.model_assets import (
 
 
 def _detect_device() -> str:
-    import torch
+    from src.device import default_device_name
 
-    if torch.cuda.is_available():
-        return "cuda"
-    return "cpu"
+    return default_device_name()
 
 
 def _default_output(pdf_path: Path) -> Path:
@@ -48,7 +46,7 @@ def main() -> None:
     parser.add_argument("--fast", action="store_true", help="Faster CPU inference only (beam-width 2 instead of 5).")
     parser.add_argument("--beam-width", type=int, default=None, help="Override beam width (default: 5, --fast: 2).")
     parser.add_argument("--work-dir", type=Path, default=None, help="Working directory for intermediate files.")
-    parser.add_argument("--device", type=str, default=None, help="Force device (cuda or cpu).")
+    parser.add_argument("--device", type=str, default=None, help="Force device (cuda, mps, or cpu).")
     parser.add_argument("--pdf-dpi", type=int, default=300, help="PDF render DPI (default: 300).")
     args = parser.parse_args()
 

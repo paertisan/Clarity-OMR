@@ -37,6 +37,15 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 
 See [pytorch.org/get-started](https://pytorch.org/get-started/locally/) for all available versions.
 
+**Apple Silicon (M1/M2/M3/M4) users:** Skip this step. The standard macOS PyTorch wheel includes Metal (MPS) GPU support, and `omr.py` picks it up automatically. On an M1 Max, a 2-page piano score takes ~30s on MPS vs ~3 min on CPU. Python 3.13 in a virtual environment is known to work:
+
+```bash
+python3.13 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python omr.py score.pdf   # prints "Device: mps"
+```
+
 **CPU-only users:** Skip this step. The CPU version of PyTorch will be installed automatically in the next step.
 
 ### 3. Install dependencies
@@ -65,7 +74,7 @@ python omr.py score.pdf --device cpu --fast
 | `-o`, `--output` | Output MusicXML path (default: `<input>-omr.musicxml`) |
 | `--fast` | Faster CPU-only inference with beam-width 2 (default: 5) |
 | `--beam-width N` | Override beam width directly |
-| `--device cuda/cpu` | Force device (auto-detected by default) |
+| `--device cuda/mps/cpu` | Force device (auto-detected by default: CUDA, then Apple Silicon MPS, then CPU) |
 | `--pdf-dpi N` | PDF render resolution (default: 300) |
 | `--work-dir PATH` | Directory for intermediate files |
 
